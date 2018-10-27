@@ -30,7 +30,7 @@ void MyDisplay(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();//=1
     // The new scene
-  //  glRotated(degreee, 0, 0, 1);
+    glRotated(degreee, 0, 0, 1);
     drawQuarter();
 
     glRotated(90, 0, 0, 1);
@@ -87,7 +87,7 @@ void rotateByCenterOfMass(GLfloat ax,  GLfloat ay,
 }
 
 void timer(int par) {
-    if (driftAway > 200) {
+    if (driftAway > 100) {
         away = false;
     }
     if (driftAway < 0) {
