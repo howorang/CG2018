@@ -4,37 +4,41 @@
 #include <GL/glut.h>
 #include "custom_types.h"
 #include <stdlib.h>
+
+static const double DRIFT_AWAY_SPEED = 0.0833333;
+
+static const double TIME_FACTOR = 0.25;
+
 void triangle(GLfloat red, GLfloat green, GLfloat blue);
 
 void timer(int);
 
 void rotateByCenterOfMass(GLfloat ax,  GLfloat ay,
                           GLfloat bx, GLfloat by,
-                          GLfloat cx, GLfloat cy);
+                          GLfloat cx, GLfloat cy, int isReverse);
 
 void drawTriangle(GLfloat x, GLfloat y,
-                  GLfloat red, GLfloat green, GLfloat blue);
+                  GLfloat red, GLfloat green, GLfloat blue, int isReverse);
 
 void drawQuarter();
 
 float degreee = 0;
+float driftAway = 0;
+int away = true;
 
 void MyDisplay(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();//=1
     // The new scene
-    glRotated(degreee, 0, 0, 1);
+  //  glRotated(degreee, 0, 0, 1);
     drawQuarter();
 
-    glTranslated(-(100/3)*2,0,0);
     glRotated(90, 0, 0, 1);
     drawQuarter();
 
-    glTranslated(-(100/3)*2,0,0);
     glRotated(90, 0, 0, 1);
     drawQuarter();
 
-    glTranslated(-(100/3)*2,0,0);
     glRotated(90, 0, 0, 1);
     drawQuarter();
     // The end of scene
@@ -45,43 +49,56 @@ void MyDisplay(void) {
 
 void drawQuarter() {
     drawTriangle(0, 0,
-                 0, 0, 255);
+                 0, 0, 255, false);
     drawTriangle(0,100,
-                 0,255,0);
+                 0,255,0, true);
     drawTriangle(100,100,
-                 255,255,0);
+                 255,255,0, false);
     drawTriangle(0,200,
-                 255,0,0);
+                 255,0,0, false);
 
 
     drawTriangle(100,0,
-                 207,47, 47);
+                 207,47, 47, true);
     drawTriangle(200,0,
-                 255,0,144);
+                 255,0,144, false);
 }
 
 void drawTriangle(GLfloat x, GLfloat y,
-                  GLfloat red, GLfloat green, GLfloat blue) {
+                  GLfloat red, GLfloat green, GLfloat blue, int isReverse) {
     glPushMatrix();
     glTranslated(x, y, 0);
+    glTranslated(driftAway, driftAway, 0);
     rotateByCenterOfMass(100, 0,
                          0, 100,
-                         0, 0);
+                         0, 0, isReverse);
     triangle(red, green, blue);
     glPopMatrix();
 }
 
 void rotateByCenterOfMass(GLfloat ax,  GLfloat ay,
         GLfloat bx, GLfloat by,
-        GLfloat cx, GLfloat cy) {
+        GLfloat cx, GLfloat cy, int isReverse) {
     GLfloat xc = (ax + bx + cx) / 3;
     GLfloat yc = (ay + by + cy) / 3;
-    glRotated(-(degreee * 3), 0, 0, 1);
+    glTranslated(xc, yc, 0);
+    glRotated(isReverse ? (degreee * 3) :  -(degreee * 3), 0, 0, 1);
     glTranslated(-xc, -yc, 0);
 }
 
 void timer(int par) {
-  // degreee += 0.25;
+    if (driftAway > 200) {
+        away = false;
+    }
+    if (driftAway < 0) {
+        away = true;
+    }
+    degreee += 1 * TIME_FACTOR;
+    if (away) {
+        driftAway += DRIFT_AWAY_SPEED * TIME_FACTOR;
+    } else {
+        driftAway -= DRIFT_AWAY_SPEED * TIME_FACTOR;
+    }
     if (degreee == 360) {
         degreee = 0;
     }
