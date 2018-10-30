@@ -4,10 +4,15 @@
 #include <GL/glut.h>
 #include "custom_types.h"
 #include <stdlib.h>
+#include <stdbool.h>
+#include <math.h>
 
 static const double DRIFT_AWAY_SPEED = 0.0833333;
 
-static const double TIME_FACTOR = 0.25;
+static const double TIME_FACTOR = 0.35;
+
+static bool shouldDriftAway = false;
+static bool shouldRotate = true;
 
 void triangle(GLfloat red, GLfloat green, GLfloat blue);
 
@@ -22,6 +27,14 @@ void drawTriangle(GLfloat x, GLfloat y,
 
 void drawQuarter();
 
+void innerRing(bool reverseCenterOfMassRotation, bool reverseRingRotation);
+
+void middleRing(bool reverseCenterOfMassRotation, bool reverseRingRotation);
+
+void outerRing(bool reverseCenterOfMassRotation, bool reverseRingRotation);
+
+void driftFromCenter(GLfloat x, GLfloat y);
+
 float degreee = 0;
 float driftAway = 0;
 int away = true;
@@ -30,7 +43,6 @@ void MyDisplay(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();//=1
     // The new scene
-    glRotated(degreee, 0, 0, 1);
     drawQuarter();
 
     glRotated(90, 0, 0, 1);
@@ -48,32 +60,63 @@ void MyDisplay(void) {
 }
 
 void drawQuarter() {
-    drawTriangle(0, 0,
-                 0, 0, 255, false);
-    drawTriangle(0,100,
-                 0,255,0, true);
-    drawTriangle(100,100,
-                 255,255,0, false);
-    drawTriangle(0,200,
-                 255,0,0, false);
+    innerRing(false, false);
+    middleRing(true, true);
+    outerRing(false, false);
+}
 
-
+void middleRing(bool reverseCenterOfMassRotation, bool reverseRingRotation) {
+    glPushMatrix();
+    glRotated(reverseRingRotation ? -degreee : degreee, 0, 0, 1);
+    drawTriangle(0, 100,
+                 0, 255, 0, reverseCenterOfMassRotation);
     drawTriangle(100,0,
-                 207,47, 47, true);
+                 207,47, 47, reverseCenterOfMassRotation);
+    glPopMatrix();
+}
+
+void outerRing(bool reverseCenterOfMassRotation, bool reverseRingRotation) {
+    glPushMatrix();
+    glRotated(reverseRingRotation ? -degreee : degreee, 0, 0, 1);
+    drawTriangle(100, 100,
+                 255, 255, 0, reverseCenterOfMassRotation);
+    drawTriangle(0,200,
+                 255,0,0, reverseCenterOfMassRotation);
+
     drawTriangle(200,0,
-                 255,0,144, false);
+                 255,0,144, reverseCenterOfMassRotation);
+    glPopMatrix();
+}
+
+void innerRing(bool reverseCenterOfMassRotation, bool reverseRingRotation) {
+    glPushMatrix();
+    glRotated(reverseRingRotation ? -degreee : degreee, 0, 0, 1);
+    drawTriangle(0, 0,
+                 0, 0, 255, reverseCenterOfMassRotation);
+    glPopMatrix();
 }
 
 void drawTriangle(GLfloat x, GLfloat y,
                   GLfloat red, GLfloat green, GLfloat blue, int isReverse) {
     glPushMatrix();
     glTranslated(x, y, 0);
-    glTranslated(driftAway, driftAway, 0);
+    driftFromCenter(x, y);
     rotateByCenterOfMass(100, 0,
                          0, 100,
                          0, 0, isReverse);
     triangle(red, green, blue);
     glPopMatrix();
+}
+
+void driftFromCenter(GLfloat x, GLfloat y) {
+    x+=33.3;
+    y+=33.3;
+    double fprce = sqrt(pow(driftAway,2) + pow(driftAway,2));
+    double tang = y/x;
+    double angle = atan(tang);
+    double xf = fprce * cos(angle);
+    double yf = fprce * sin(angle);
+    glTranslated(xf, yf, 0);
 }
 
 void rotateByCenterOfMass(GLfloat ax,  GLfloat ay,
@@ -87,20 +130,24 @@ void rotateByCenterOfMass(GLfloat ax,  GLfloat ay,
 }
 
 void timer(int par) {
-    if (driftAway > 100) {
-        away = false;
+    if (shouldDriftAway) {
+        if (driftAway > 100) {
+            away = false;
+        }
+        if (driftAway < 0) {
+            away = true;
+        }
+        if (away) {
+            driftAway += DRIFT_AWAY_SPEED * TIME_FACTOR;
+        } else {
+            driftAway -= DRIFT_AWAY_SPEED * TIME_FACTOR;
+        }
     }
-    if (driftAway < 0) {
-        away = true;
-    }
-    degreee += 1 * TIME_FACTOR;
-    if (away) {
-        driftAway += DRIFT_AWAY_SPEED * TIME_FACTOR;
-    } else {
-        driftAway -= DRIFT_AWAY_SPEED * TIME_FACTOR;
-    }
-    if (degreee == 360) {
-        degreee = 0;
+    if (shouldRotate) {
+        degreee += 1 * TIME_FACTOR;
+        if (degreee == 360) {
+            degreee = 0;
+        }
     }
     glutPostRedisplay();
 }
