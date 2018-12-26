@@ -5,4 +5,4 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_executable(rotate main.cpp Camera.h)
 
-target_link_libraries(rotate libopengl32.a libglu32.a libfreeglut.a)
+target_link_libraries(rotate libSOIL.a libopengl32.a libglu32.a libfreeglut.a)

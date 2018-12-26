@@ -8,17 +8,26 @@
 #include<stdlib.h>	//exit(0)
 #include<math.h>
 #include "Camera.h"
+#include <SOIL.h>
 
 static const float T_STEPS = 200;
 static const float U_STEPS = 50;
 Camera *camera = nullptr;
+GLuint LoadTexture( const char * filename );
 
 double time = 0;
+GLuint texture;
 
 void drawSpring();
 void timer(int);
 void init (void) {
-
+    texture = SOIL_load_OGL_texture
+            (
+                    "metal.bmp",
+                    SOIL_LOAD_AUTO,
+                    SOIL_CREATE_NEW_ID,
+                    SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
+            );
 }
 
 void enable (void) {
@@ -26,6 +35,7 @@ void enable (void) {
    // glEnable (GL_LIGHTING); //enable the lighting
     //glEnable (GL_LIGHT0); //enable LIGHT0, our Diffuse Light
     glShadeModel (GL_SMOOTH); //set the shader to smooth shader
+    glEnable(GL_TEXTURE_2D);
 
 }
 
@@ -49,6 +59,7 @@ void display (void) {
     drawSpring();
     glPopMatrix();
     glutTimerFunc(5, timer, 0);
+    glFlush();
     glutSwapBuffers(); //swap the buffers
 //    angle++; //increase the angle
 }
@@ -57,8 +68,8 @@ void drawSpring() {
     GLdouble x;
     GLdouble y;
     GLdouble z;
-    int k;
-    glColor3f (1.0, 1.0, 1.0);
+    GLdouble texx = 0;
+    GLdouble texy = 0;
 
     double change = 1 + sin(time/200) * 0.30;
     GLdouble t_max = 8 * M_PI;
@@ -68,11 +79,12 @@ void drawSpring() {
         GLdouble t = t_max - (i * (t_max/ T_STEPS));
         for (int j = 0; j <= U_STEPS; j++) {
             GLdouble u = u_max - (j * (t_max/ T_STEPS));
-            for (k = 1; k >= 0; k--) {
+            for (int k = 1; k >= 0; k--) {
                 GLdouble ring_var = (u_max/ U_STEPS) * k;
                 x = cos(t + ring_var) * (3.0 + cos(u));
                 y = sin(t + ring_var) * (3.0 + cos(u));
                 z = 0.6 * ((t + ring_var) * change) + sin(u);
+                glTexCoord2f(k, t/t_max);
                 glVertex3d(x, y, z);
             }
         }
@@ -108,6 +120,7 @@ void timer(int par) {
     time += 1;
     glutPostRedisplay();
 }
+
 
 int main (int argc, char **argv) {
     glutInit (&argc, argv);
