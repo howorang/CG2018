@@ -110,7 +110,7 @@ void drawTriangle(GLfloat x, GLfloat y,
 
 void driftFromCenter(GLfloat x, GLfloat y) {
     x+=33.3;
-    y+=33.3;
+    y+=33.3; //Środek ciężkości
     double fprce = sqrt(pow(driftAway,2) + pow(driftAway,2));
     double tang = y/x;
     double angle = atan(tang);
