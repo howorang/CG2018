@@ -13,9 +13,10 @@ static const float T_STEPS = 200;
 static const float U_STEPS = 50;
 Camera *camera = nullptr;
 
+double time = 0;
 
 void drawSpring();
-
+void timer(int);
 void init (void) {
 
 }
@@ -36,7 +37,11 @@ void display (void) {
     glLoadIdentity();
     camera->camera();
     enable();
+    glPushMatrix();
+    glRotated(90, 1, 0, 0);
     drawSpring();
+    glPopMatrix();
+    glutTimerFunc(5, timer, 0);
     glutSwapBuffers(); //swap the buffers
 //    angle++; //increase the angle
 }
@@ -47,18 +52,20 @@ void drawSpring() {
     GLdouble z;
     int k;
     glColor3f (1.0, 1.0, 1.0);
+
+    double change = 1 + sin(time/200) * 0.30;
     GLdouble t_max = 8 * M_PI;
     double_t u_max = 2 * M_PI;
     for (int i = 0; i <= T_STEPS; i++) {
         glBegin(GL_QUAD_STRIP);
         GLdouble t = t_max - (i * (t_max/ T_STEPS));
         for (int j = 0; j <= U_STEPS; j++) {
-            GLdouble u = u_max - (j * (u_max/ U_STEPS));
+            GLdouble u = u_max - (j * (t_max/ T_STEPS));
             for (k = 1; k >= 0; k--) {
                 GLdouble ring_var = (u_max/ U_STEPS) * k;
                 x = cos(t + ring_var) * (3.0 + cos(u));
                 y = sin(t + ring_var) * (3.0 + cos(u));
-                z = 0.6 * (t + ring_var) + sin(u);
+                z = 0.6 * ((t + ring_var) * change) + sin(u);
                 glVertex3d(x, y, z);
             }
         }
@@ -75,7 +82,10 @@ void reshape (int w, int h) {
 
 }
 
-
+void timer(int par) {
+    time += 1;
+    glutPostRedisplay();
+}
 
 int main (int argc, char **argv) {
     glutInit (&argc, argv);
