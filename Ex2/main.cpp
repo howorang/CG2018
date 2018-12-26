@@ -9,8 +9,8 @@
 #include<math.h>
 #include "Camera.h"
 
-static const float T_STEP = 0.1;
-static const float U_STEP = 0.1;
+static const float T_STEPS = 200;
+static const float U_STEPS = 50;
 Camera *camera = nullptr;
 
 
@@ -42,18 +42,20 @@ void display (void) {
 }
 
 void drawSpring() {
-    GLfloat x;
-    GLfloat y;
-    GLfloat z;
+    GLdouble x;
+    GLdouble y;
+    GLdouble z;
     int k;
     glColor3f (1.0, 1.0, 1.0);
-    float t = 8 * M_PI;
-    float u = 2 * M_PI;
-    for (  float t = 8 * M_PI; t >= 0; t -= T_STEP) {
+    GLdouble t_max = 8 * M_PI;
+    double_t u_max = 2 * M_PI;
+    for (int i = 0; i <= T_STEPS; i++) {
         glBegin(GL_QUAD_STRIP);
-        for (float u = 2 * M_PI; u >= 0; u -= U_STEP) {
+        GLdouble t = t_max - (i * (t_max/ T_STEPS));
+        for (int j = 0; j <= U_STEPS; j++) {
+            GLdouble u = u_max - (j * (u_max/ U_STEPS));
             for (k = 1; k >= 0; k--) {
-                float ring_var = U_STEP * k;
+                GLdouble ring_var = (u_max/ U_STEPS) * k;
                 x = cos(t + ring_var) * (3.0 + cos(u));
                 y = sin(t + ring_var) * (3.0 + cos(u));
                 z = 0.6 * (t + ring_var) + sin(u);
