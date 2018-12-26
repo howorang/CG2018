@@ -67,11 +67,9 @@ void display (void) {
     glColor3f (1.0, 1.0, 1.0);
     float t = 8 * M_PI;
     float u = 2 * M_PI;
-    int t_steps = ceil(t / T_STEP) + 1;
-    int u_steps = ceil(u / U_STEP) + 1;
-    for (int i = 0; i < t_steps; t -= T_STEP, i++) {
+    for (  float t = 8 * M_PI; t >= 0; t -= T_STEP) {
         glBegin(GL_QUAD_STRIP);
-        for (int j = 0; j < u_steps; u -= U_STEP, j++) {
+        for (float u = 2 * M_PI; u >= 0; u -= U_STEP) {
             for (k = 1; k >= 0; k--) {
                 float ring_var = U_STEP * k;
                 x = cos(t + ring_var) * (3.0 + cos(u));
