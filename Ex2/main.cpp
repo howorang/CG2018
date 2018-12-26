@@ -11,36 +11,13 @@
 
 static const float T_STEP = 0.1;
 static const float U_STEP = 0.1;
-
-float lastx, lasty;
-
-//positions of the cubes
-float positionz[10];
-float positionx[10];
 Camera *camera = nullptr;
 
-void cubepositions (void) { //set the positions of the cubes
 
-    for (int i=0;i<10;i++)
-    {
-        positionz[i] = rand()%5 + 5;
-        positionx[i] = rand()%5 + 5;
-    }
-}
-
-//draw the cube
-void cube (void) {
-    for (int i=0;i<10;i++)
-    {
-        glPushMatrix();
-        glTranslated(-positionx[i + 1] * 10, 0, -positionz[i + 1] * 10); //translate the cube
-        glutSolidCube(2); //draw the cube
-        glPopMatrix();
-    }
-}
+void drawSpring();
 
 void init (void) {
-    cubepositions();
+
 }
 
 void enable (void) {
@@ -59,7 +36,12 @@ void display (void) {
     glLoadIdentity();
     camera->camera();
     enable();
-    cube();
+    drawSpring();
+    glutSwapBuffers(); //swap the buffers
+//    angle++; //increase the angle
+}
+
+void drawSpring() {
     GLfloat x;
     GLfloat y;
     GLfloat z;
@@ -80,8 +62,6 @@ void display (void) {
         }
         glEnd();
     }
-    glutSwapBuffers(); //swap the buffers
-//    angle++; //increase the angle
 }
 
 void reshape (int w, int h) {
