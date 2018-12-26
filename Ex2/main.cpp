@@ -23,8 +23,8 @@ void init (void) {
 
 void enable (void) {
     glEnable (GL_DEPTH_TEST); //enable the depth testing
-    glEnable (GL_LIGHTING); //enable the lighting
-    glEnable (GL_LIGHT0); //enable LIGHT0, our Diffuse Light
+   // glEnable (GL_LIGHTING); //enable the lighting
+    //glEnable (GL_LIGHT0); //enable LIGHT0, our Diffuse Light
     glShadeModel (GL_SMOOTH); //set the shader to smooth shader
 
 }
@@ -39,6 +39,13 @@ void display (void) {
     enable();
     glPushMatrix();
     glRotated(90, 1, 0, 0);
+    GLUquadricObj *quadratic;
+    quadratic = gluNewQuadric();
+    glPushMatrix();
+    glTranslated(2,0,-2);
+    gluCylinder( quadratic,
+             2, 2, 3, 30, 5);
+    glPopMatrix();
     drawSpring();
     glPopMatrix();
     glutTimerFunc(5, timer, 0);
@@ -71,6 +78,21 @@ void drawSpring() {
         }
         glEnd();
     }
+    glPushMatrix();
+    x = cos(t_max) * (3.0 + cos(u_max));
+    y = sin(t_max) * (3.0 + cos(u_max));
+    z = 0.6 * ((t_max) * change) + sin(u_max);
+    glTranslated(x,y,z);
+    GLUquadricObj *quadratic;
+    quadratic = gluNewQuadric();
+    gluCylinder( quadratic,
+                 2, 2, 3, 30, 5);
+    glPushMatrix();
+    glTranslated(0,0,6);
+    glutSolidSphere(5,
+                         30, 30);
+    glPopMatrix();
+    glPopMatrix();
 }
 
 void reshape (int w, int h) {
