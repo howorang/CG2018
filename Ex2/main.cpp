@@ -92,9 +92,6 @@ void drawCylinder(GLdouble base, GLdouble top,
 }
 
 void drawSpring() {
-    GLdouble x;
-    GLdouble y;
-    GLdouble z;
     double change = 1 + sin(time/200) * 0.30;
     GLdouble t_max = 8 * M_PI;
     double_t u_max = 2 * M_PI;
@@ -107,12 +104,9 @@ void drawSpring() {
         GLdouble t = t_max - (i * (t_max/ T_STEPS));
         for (int j = 0; j <= U_STEPS; j++) {
             GLdouble u = u_max - (j * (u_max/ U_STEPS));
-                x = cos(t) * (3.0 + cos(u));
-                y = sin(t) * (3.0 + cos(u));
-                z = 0.6 * ((t) * change) + sin(u);
-                polygonData[i][j][0] = x;
-                polygonData[i][j][1] = y;
-                polygonData[i][j][2] = z;
+                polygonData[i][j][0] = cos(t) * (3.0 + cos(u));
+                polygonData[i][j][1] = sin(t) * (3.0 + cos(u));
+                polygonData[i][j][2] = 0.6 * ((t) * change) + sin(u);
         }
     }
 
@@ -129,10 +123,7 @@ void drawSpring() {
     }
 
     glPushMatrix();
-    x = cos(t_max) * (3.0 + cos(u_max));
-    y = sin(t_max) * (3.0 + cos(u_max));
-    z = 0.6 * ((t_max) * change) + sin(u_max);
-    glTranslated(x,y,z);
+    glTranslated(polygonData[0][0][0] , polygonData[0][0][1], polygonData[0][0][2]);
     drawCylinder(2, 2, 3, 30, 5);
     glPushMatrix();
     glTranslated(0,0,6);
