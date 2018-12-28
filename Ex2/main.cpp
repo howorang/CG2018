@@ -10,8 +10,8 @@
 #include "Camera.h"
 #include <SOIL.h>
 
-static const float T_STEPS = 200;
-static const float U_STEPS = 50;
+static const int T_STEPS = 200;
+static const int U_STEPS = 50;
 Camera *camera = nullptr;
 
 double time = 0;
@@ -101,22 +101,33 @@ void drawSpring() {
 
     glBindTexture(GL_TEXTURE_2D, metalTexture);
 
+    GLdouble polygonData[T_STEPS + 1][U_STEPS + 1][3];
+
     for (int i = 0; i <= T_STEPS; i++) {
-        glBegin(GL_QUAD_STRIP);
         GLdouble t = t_max - (i * (t_max/ T_STEPS));
         for (int j = 0; j <= U_STEPS; j++) {
-            GLdouble u = u_max - (j * (t_max/ T_STEPS));
+            GLdouble u = u_max - (j * (u_max/ U_STEPS));
+                x = cos(t) * (3.0 + cos(u));
+                y = sin(t) * (3.0 + cos(u));
+                z = 0.6 * ((t) * change) + sin(u);
+                polygonData[i][j][0] = x;
+                polygonData[i][j][1] = y;
+                polygonData[i][j][2] = z;
+        }
+    }
+
+    for (int i = 0; i < T_STEPS; i++) {
+        glBegin(GL_QUAD_STRIP);
+        for (int j = 0; j <= U_STEPS; j++) {
+            GLdouble u = u_max - (j * (u_max/ U_STEPS));
             for (int k = 1; k >= 0; k--) {
-                GLdouble ring_var = (u_max/ U_STEPS) * k;
-                x = cos(t + ring_var) * (3.0 + cos(u));
-                y = sin(t + ring_var) * (3.0 + cos(u));
-                z = 0.6 * ((t + ring_var) * change) + sin(u);
                 glTexCoord2d(k, u/u_max);
-                glVertex3d(x, y, z);
+                glVertex3d(polygonData[i + k][j][0] , polygonData[i + k][j][1], polygonData[i + k][j][2]);
             }
         }
         glEnd();
     }
+
     glPushMatrix();
     x = cos(t_max) * (3.0 + cos(u_max));
     y = sin(t_max) * (3.0 + cos(u_max));
