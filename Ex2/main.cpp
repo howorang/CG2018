@@ -49,11 +49,11 @@ void display (void) {
     enable();
     glPushMatrix();
     glRotated(90, 1, 0, 0);
-    GLUquadricObj *quadratic;
-    quadratic = gluNewQuadric();
+    GLUquadricObj* cylinderQuadratic = gluNewQuadric();
     glPushMatrix();
     glTranslated(2,0,-2);
-    gluCylinder( quadratic,
+    gluQuadricTexture(cylinderQuadratic, TRUE);
+    gluCylinder(cylinderQuadratic,
              2, 2, 3, 30, 5);
     glPopMatrix();
     drawSpring();
@@ -61,7 +61,7 @@ void display (void) {
     glutTimerFunc(5, timer, 0);
     glFlush();
     glutSwapBuffers(); //swap the buffers
-//    angle++; //increase the angle
+    gluDeleteQuadric(cylinderQuadratic);
 }
 
 void drawSpring() {
@@ -84,7 +84,7 @@ void drawSpring() {
                 x = cos(t + ring_var) * (3.0 + cos(u));
                 y = sin(t + ring_var) * (3.0 + cos(u));
                 z = 0.6 * ((t + ring_var) * change) + sin(u);
-                glTexCoord2f(k, t/t_max);
+                glTexCoord2d(k, u/u_max);
                 glVertex3d(x, y, z);
             }
         }
@@ -95,16 +95,19 @@ void drawSpring() {
     y = sin(t_max) * (3.0 + cos(u_max));
     z = 0.6 * ((t_max) * change) + sin(u_max);
     glTranslated(x,y,z);
-    GLUquadricObj *quadratic;
-    quadratic = gluNewQuadric();
-    gluCylinder( quadratic,
+    GLUquadricObj* cylinderQuadratic = gluNewQuadric();
+    gluQuadricTexture(cylinderQuadratic, TRUE);
+    gluCylinder(cylinderQuadratic,
                  2, 2, 3, 30, 5);
     glPushMatrix();
     glTranslated(0,0,6);
-    glutSolidSphere(5,
-                         30, 30);
+    GLUquadricObj* sphereQuadratic = gluNewQuadric();
+    gluQuadricTexture(sphereQuadratic, TRUE);
+    gluSphere(sphereQuadratic, 5, 30, 30);
     glPopMatrix();
     glPopMatrix();
+    gluDeleteQuadric(sphereQuadratic);
+    gluDeleteQuadric(cylinderQuadratic);
 }
 
 void reshape (int w, int h) {
