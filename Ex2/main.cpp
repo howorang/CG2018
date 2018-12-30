@@ -34,14 +34,14 @@ void drawCylinder(GLfloat base, GLfloat top,
 void init (void) {
     metalTexture = SOIL_load_OGL_texture
             (
-                    "metal.bmp",
+                    "metal.jpg",
                     SOIL_LOAD_AUTO,
                     SOIL_CREATE_NEW_ID,
                     SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
             );
     woodTexture = SOIL_load_OGL_texture
             (
-                    "wood.bmp",
+                    "wood.jpg",
                     SOIL_LOAD_AUTO,
                     SOIL_CREATE_NEW_ID,
                     SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
