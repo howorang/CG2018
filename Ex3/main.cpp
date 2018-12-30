@@ -10,39 +10,13 @@
 #include "Camera.h"
 #include <SOIL.h>
 
-static const int T_STEPS = 200;
-static const int U_STEPS = 50;
 Camera *camera = nullptr;
 
 double time = 0;
-GLuint metalTexture;
-GLuint woodTexture;
-
-void drawSpring();
 void timer(int);
 
-void drawSphere();
-
-void drawCuboid(GLdouble height, GLdouble width);
-
-void drawCylinder(GLdouble base, GLdouble top,
-        GLdouble height, GLint slices, GLint stacks);
-
 void init (void) {
-    metalTexture = SOIL_load_OGL_texture
-            (
-                    "metal.bmp",
-                    SOIL_LOAD_AUTO,
-                    SOIL_CREATE_NEW_ID,
-                    SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
-            );
-    woodTexture = SOIL_load_OGL_texture
-            (
-                    "wood.bmp",
-                    SOIL_LOAD_AUTO,
-                    SOIL_CREATE_NEW_ID,
-                    SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
-            );
+
 }
 
 void enable (void) {
@@ -62,103 +36,12 @@ void display (void) {
     glLoadIdentity();
     camera->camera();
     enable();
-    glPushMatrix();
-    glRotated(90, 1, 0, 0);
-    glPushMatrix();
-    glTranslated(2,0,-2);
-    drawCylinder(2, 2, 3, 30, 5);
-    glPopMatrix();
-    drawSpring();
-    glPopMatrix();
+    //
     glutTimerFunc(5, timer, 0);
     glFlush();
     glutSwapBuffers(); //swap the buffers
 }
 
-void drawCylinder(GLdouble base, GLdouble top,
-        GLdouble height, GLint slices, GLint stacks){
-    GLUquadricObj* discQuadratic = gluNewQuadric();
-    gluQuadricTexture(discQuadratic, TRUE);
-    gluDisk(discQuadratic, 0, base, slices, stacks);
-    gluDeleteQuadric(discQuadratic);
-    GLUquadricObj* cylinderQuadratic = gluNewQuadric();
-    gluQuadricDrawStyle(cylinderQuadratic, GLU_FILL);
-    gluQuadricTexture(cylinderQuadratic, TRUE);
-    gluCylinder(cylinderQuadratic,
-             base, top, height, slices, stacks);
-    glPushMatrix();
-    glTranslated(0, 0, height);
-    gluDisk(discQuadratic, 0, base, slices, stacks);
-    glPopMatrix();
-    gluDeleteQuadric(cylinderQuadratic);
-}
-
-void drawCuboid(GLdouble height, GLdouble length) {
-    glBegin(GL_QUAD_STRIP);
-
-    glVertex3d(0, 0, 0);
-    glVertex3d(0, 0, length);
-
-    glVertex3d(0, height, length);
-    glVertex3d(0, height, 0);
-
-
-    glEnd();
-}
-
-void drawSpring() {
-    double change = 1 + sin(time/200) * 0.30;
-    GLdouble t_max = 8 * M_PI;
-    double_t u_max = 2 * M_PI;
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D, metalTexture);
-
-    GLdouble polygonData[T_STEPS + 1][U_STEPS + 1][3];
-
-    for (int i = 0; i <= T_STEPS; i++) {
-        GLdouble t = t_max - (i * (t_max/ T_STEPS));
-        for (int j = 0; j <= U_STEPS; j++) {
-            GLdouble u = u_max - (j * (u_max/ U_STEPS));
-                polygonData[i][j][0] = cos(t) * (3.0 + cos(u));
-                polygonData[i][j][1] = sin(t) * (3.0 + cos(u));
-                polygonData[i][j][2] = 0.6 * ((t) * change) + sin(u);
-        }
-    }
-
-    for (int i = 0; i < T_STEPS; i++) {
-        glBegin(GL_QUAD_STRIP);
-        for (int j = 0; j <= U_STEPS; j++) {
-            GLdouble u = u_max - (j * (u_max/ U_STEPS));
-            for (int k = 1; k >= 0; k--) {
-                glTexCoord2d(k, u/u_max);
-                glVertex3d(polygonData[i + k][j][0] , polygonData[i + k][j][1], polygonData[i + k][j][2]);
-            }
-        }
-        glEnd();
-    }
-
-    glPushMatrix();
-    glTranslated(polygonData[0][0][0] , polygonData[0][0][1], polygonData[0][0][2]);
-    drawCylinder(2, 2, 3, 30, 5);
-    glPushMatrix();
-    glTranslated(0,0,6);
-    drawSphere();
-    glPopMatrix();
-    glPopMatrix();
-}
-
-void drawSphere() {
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D, woodTexture);
-    GLUquadricObj* sphereQuadratic = gluNewQuadric();
-    gluQuadricDrawStyle(sphereQuadratic, GLU_FILL);
-    gluQuadricTexture(sphereQuadratic, TRUE);
-    gluSphere(sphereQuadratic, 5, 30, 30);
-    gluDeleteQuadric(sphereQuadratic);
-}
 
 void reshape (int w, int h) {
     glViewport (0, 0, (GLsizei)w, (GLsizei)h); //set the viewport to the current window specifications
