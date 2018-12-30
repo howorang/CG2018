@@ -19,7 +19,7 @@ typedef struct PlanetConf {
     GLfloat dayLength;
 } PlanetConf;
 
-static const int TIME_FACTOR = 200;
+static const int TIME_FACTOR = 500;
 static const int SCALE_FACTOR = 250;
 Camera *camera = nullptr;
 
@@ -129,7 +129,10 @@ void drawPlanetSimple(GLuint texture, GLfloat size) {
     GLUquadricObj *sphereQuadratic = gluNewQuadric();
     gluQuadricDrawStyle(sphereQuadratic, GLU_FILL);
     gluQuadricTexture(sphereQuadratic, TRUE);
+    glPushMatrix();
+    glRotatef(90, 1, 0, 0);
     gluSphere(sphereQuadratic, size/1000, 50, 50);
+    glPopMatrix();
     gluDeleteQuadric(sphereQuadratic);
 }
 
@@ -141,7 +144,10 @@ void drawSun() {
     glRotatef(time /TIME_FACTOR , 0, 1, 0);
     gluQuadricDrawStyle(sunQuadratic, GLU_FILL);
     gluQuadricTexture(sunQuadratic, TRUE);
+    glPushMatrix();
+    glRotatef(90, 1, 0, 0);
     gluSphere(sunQuadratic, 695700/20000, 50, 50);
+    glPopMatrix();
     gluDeleteQuadric(sunQuadratic);
 }
 
