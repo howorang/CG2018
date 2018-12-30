@@ -19,7 +19,7 @@ typedef struct PlanetConf {
     GLfloat dayLength;
 } PlanetConf;
 
-static const int TIME_FACTOR = 50;
+static const int TIME_FACTOR = 200;
 static const int SCALE_FACTOR = 250;
 Camera *camera = nullptr;
 
@@ -41,28 +41,28 @@ void init (void) {
     sunTexture = loadTexture("assets/sun.jpg");
 
     PlanetConf mercuryConf = {.texture = loadTexture("assets/mercury.jpg"), .size = 2439,
-                              .semiMajorAxis = 0.3870, .eccentricity = 0.2056, .orbitalPeriod = 0.2408, .dayLength = 1};
+                              .semiMajorAxis = 0.3870, .eccentricity = 0.2056, .orbitalPeriod = 0.2408, .dayLength = 1.408};
 
     PlanetConf venusConf = {.texture = loadTexture("assets/venus.jpg"), .size = 6051,
-            .semiMajorAxis = 0.7233, .eccentricity = 0.0067, .orbitalPeriod = 0.6151, .dayLength = 1};
+            .semiMajorAxis = 0.7233, .eccentricity = 0.0067, .orbitalPeriod = 0.6151, .dayLength = 5.832};
 
     PlanetConf earthConf = {.texture = loadTexture("assets/earth.jpg"), .size = 6378,
-            .semiMajorAxis = 1, .eccentricity = 0.01671, .orbitalPeriod = 1, .dayLength = 1};
+            .semiMajorAxis = 1, .eccentricity = 0.01671, .orbitalPeriod = 1, .dayLength = 24};
 
     PlanetConf marsConf = {.texture = loadTexture("assets/mars.jpg"), .size = 3396,
-            .semiMajorAxis = 1.5237, .eccentricity = 0.09339, .orbitalPeriod = 1.8808, .dayLength = 1};
+            .semiMajorAxis = 1.5237, .eccentricity = 0.09339, .orbitalPeriod = 1.8808, .dayLength = 25};
 
     PlanetConf jupiterConf = {.texture = loadTexture("assets/jupiter.jpg"), .size = 71492,
-            .semiMajorAxis = 5.2029, .eccentricity = 0.0484, .orbitalPeriod = 11.8626, .dayLength = 1};
+            .semiMajorAxis = 2.2029, .eccentricity = 0.0484, .orbitalPeriod = 11.8626, .dayLength = 10};
 
     PlanetConf saturnConf = {.texture = loadTexture("assets/saturn.jpg"), .size = 60268,
-            .semiMajorAxis = 9.537, .eccentricity = 0.0539, .orbitalPeriod = 29.4474, .dayLength = 1};
+            .semiMajorAxis = 3.537, .eccentricity = 0.0539, .orbitalPeriod = 29.4474, .dayLength = 11};
 
     PlanetConf uranusConf = {.texture = loadTexture("assets/uranus.jpg"), .size = 25559,
-            .semiMajorAxis = 19.189, .eccentricity = 0.04726, .orbitalPeriod = 84.0168, .dayLength = 1};
+            .semiMajorAxis = 4.189, .eccentricity = 0.04726, .orbitalPeriod = 84.0168, .dayLength = 17};
 
     PlanetConf neptuneConf = {.texture = loadTexture("assets/neptune.jpg"), .size = 24764,
-            .semiMajorAxis = 30.0699, .eccentricity = 0.00859, .orbitalPeriod = 164.7913, .dayLength = 1};
+            .semiMajorAxis = 5.0699, .eccentricity = 0.00859, .orbitalPeriod = 164.7913, .dayLength = 16};
 
     planetConfs[0] = mercuryConf;
     planetConfs[1] = venusConf;
@@ -100,6 +100,7 @@ void drawPlanet(PlanetConf* planetConf) {
     GLfloat posx = (GLfloat)(a * cos(time/ TIME_FACTOR /planetConf -> orbitalPeriod));
     GLfloat posy = (GLfloat)(b * sin(time / TIME_FACTOR / planetConf -> orbitalPeriod));
     glPushMatrix();
+    glRotatef(time /TIME_FACTOR/ planetConf -> dayLength, 0, 1, 0);
     glTranslatef(posx * SCALE_FACTOR, 0, posy * SCALE_FACTOR);
     glTranslatef(0, 0, planetConf -> eccentricity * SCALE_FACTOR);
     drawPlanetSimple(planetConf -> texture, planetConf->size);
@@ -137,6 +138,7 @@ void drawSun() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glBindTexture(GL_TEXTURE_2D, sunTexture);
     GLUquadricObj* sunQuadratic = gluNewQuadric();
+    glRotatef(time /TIME_FACTOR , 0, 1, 0);
     gluQuadricDrawStyle(sunQuadratic, GLU_FILL);
     gluQuadricTexture(sunQuadratic, TRUE);
     gluSphere(sunQuadratic, 695700/20000, 50, 50);
@@ -150,7 +152,7 @@ void reshape (int w, int h) {
     glViewport (0, 0, (GLsizei)w, (GLsizei)h); //set the viewport to the current window specifications
     glMatrixMode (GL_PROJECTION); //set the matrix to projection
     glLoadIdentity();
-    gluPerspective (60, (GLfloat)w / (GLfloat)h, 1.0, 1000.0); //set the perspective (angle of sight, width, height, depth)
+    gluPerspective (60, (GLfloat)w / (GLfloat)h, 1.0, 5000.0); //set the perspective (angle of sight, width, height, depth)
     glMatrixMode (GL_MODELVIEW); //set the matrix back to model
 
 }
