@@ -12,6 +12,9 @@
 
 static const int T_STEPS = 200;
 static const int U_STEPS = 50;
+
+GLfloat polygonData[T_STEPS + 1][U_STEPS + 1][3];
+
 Camera *camera = nullptr;
 
 double time = 0;
@@ -23,10 +26,10 @@ void timer(int);
 
 void drawSphere();
 
-void drawCuboid(GLdouble height, GLdouble width);
+void drawCuboid(GLfloat height, GLfloat width);
 
-void drawCylinder(GLdouble base, GLdouble top,
-        GLdouble height, GLint slices, GLint stacks);
+void drawCylinder(GLfloat base, GLfloat top,
+        GLfloat height, GLint slices, GLint stacks);
 
 void init (void) {
     metalTexture = SOIL_load_OGL_texture
@@ -63,9 +66,9 @@ void display (void) {
     camera->camera();
     enable();
     glPushMatrix();
-    glRotated(90, 1, 0, 0);
+    glRotatef(90, 1, 0, 0);
     glPushMatrix();
-    glTranslated(2,0,-2);
+    glTranslatef(2,0,-2);
     drawCylinder(2, 2, 3, 30, 5);
     glPopMatrix();
     drawSpring();
@@ -75,8 +78,8 @@ void display (void) {
     glutSwapBuffers(); //swap the buffers
 }
 
-void drawCylinder(GLdouble base, GLdouble top,
-        GLdouble height, GLint slices, GLint stacks){
+void drawCylinder(GLfloat base, GLfloat top,
+        GLfloat height, GLint slices, GLint stacks){
     GLUquadricObj* discQuadratic = gluNewQuadric();
     gluQuadricTexture(discQuadratic, TRUE);
     gluDisk(discQuadratic, 0, base, slices, stacks);
@@ -87,40 +90,25 @@ void drawCylinder(GLdouble base, GLdouble top,
     gluCylinder(cylinderQuadratic,
              base, top, height, slices, stacks);
     glPushMatrix();
-    glTranslated(0, 0, height);
+    glTranslatef(0, 0, height);
     gluDisk(discQuadratic, 0, base, slices, stacks);
     glPopMatrix();
     gluDeleteQuadric(cylinderQuadratic);
 }
 
-void drawCuboid(GLdouble height, GLdouble length) {
-    glBegin(GL_QUAD_STRIP);
-
-    glVertex3d(0, 0, 0);
-    glVertex3d(0, 0, length);
-
-    glVertex3d(0, height, length);
-    glVertex3d(0, height, 0);
-
-
-    glEnd();
-}
-
 void drawSpring() {
     double change = 1 + sin(time/200) * 0.30;
-    GLdouble t_max = 8 * M_PI;
-    double_t u_max = 2 * M_PI;
+    GLfloat t_max = 8 * (float)M_PI;
+    GLfloat u_max = 2 * (float)M_PI;
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glBindTexture(GL_TEXTURE_2D, metalTexture);
 
-    GLdouble polygonData[T_STEPS + 1][U_STEPS + 1][3];
-
     for (int i = 0; i <= T_STEPS; i++) {
-        GLdouble t = t_max - (i * (t_max/ T_STEPS));
+        GLfloat t = t_max - (i * (t_max/ T_STEPS));
         for (int j = 0; j <= U_STEPS; j++) {
-            GLdouble u = u_max - (j * (u_max/ U_STEPS));
+            GLfloat u = u_max - (j * (u_max/ U_STEPS));
                 polygonData[i][j][0] = cos(t) * (3.0 + cos(u));
                 polygonData[i][j][1] = sin(t) * (3.0 + cos(u));
                 polygonData[i][j][2] = 0.6 * ((t) * change) + sin(u);
@@ -130,20 +118,20 @@ void drawSpring() {
     for (int i = 0; i < T_STEPS; i++) {
         glBegin(GL_QUAD_STRIP);
         for (int j = 0; j <= U_STEPS; j++) {
-            GLdouble u = u_max - (j * (u_max/ U_STEPS));
+            GLfloat u = u_max - (j * (u_max/ U_STEPS));
             for (int k = 1; k >= 0; k--) {
-                glTexCoord2d(k, u/u_max);
-                glVertex3d(polygonData[i + k][j][0] , polygonData[i + k][j][1], polygonData[i + k][j][2]);
+                glTexCoord2f(k, u/u_max);
+                glVertex3f(polygonData[i + k][j][0] , polygonData[i + k][j][1], polygonData[i + k][j][2]);
             }
         }
         glEnd();
     }
 
     glPushMatrix();
-    glTranslated(polygonData[0][0][0] , polygonData[0][0][1], polygonData[0][0][2]);
+    glTranslatef(polygonData[0][0][0] , polygonData[0][0][1], polygonData[0][0][2]);
     drawCylinder(2, 2, 3, 30, 5);
     glPushMatrix();
-    glTranslated(0,0,6);
+    glTranslatef(0,0,6);
     drawSphere();
     glPopMatrix();
     glPopMatrix();
