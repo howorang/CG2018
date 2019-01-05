@@ -86,10 +86,12 @@ GLuint loadTexture(const char *texturepath) {
 
 void enable (void) {
     glEnable (GL_DEPTH_TEST); //enable the depth testing
-  //  glEnable (GL_LIGHTING); //enable the lighting
-  //  glEnable (GL_LIGHT0); //enable LIGHT0, our Diffuse Light
     glShadeModel (GL_SMOOTH); //set the shader to smooth shader
     glEnable(GL_TEXTURE_2D);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    GLfloat lightPosition[] = { 0.0, 0.0, 0.0, 1.0 };
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 
 }
 
@@ -137,6 +139,8 @@ void drawPlanetSimple(GLuint texture, GLfloat size) {
 }
 
 void drawSun() {
+    GLfloat emissionParams[] = { 1, 1, 1, 1.0 };
+    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emissionParams);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glBindTexture(GL_TEXTURE_2D, sunTexture);
@@ -149,6 +153,10 @@ void drawSun() {
     gluSphere(sunQuadratic, 695700/20000, 50, 50);
     glPopMatrix();
     gluDeleteQuadric(sunQuadratic);
+    emissionParams[0] = 0.0;
+    emissionParams[1] = 0.0;
+    emissionParams[2] = 0.0;
+    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emissionParams);
 }
 
 
