@@ -9,6 +9,7 @@
 #include<math.h>
 #include "Camera.h"
 #include <SOIL.h>
+#include <GL/glext.h>
 
 typedef struct PlanetConf {
     GLuint texture;
@@ -17,6 +18,7 @@ typedef struct PlanetConf {
     GLfloat eccentricity;
     GLfloat orbitalPeriod;
     GLfloat dayLength;
+    void (*drawFunc)(GLuint, GLfloat) = NULL;
 } PlanetConf;
 
 static const int TIME_FACTOR = 500;
@@ -24,6 +26,7 @@ static const int SCALE_FACTOR = 250;
 Camera *camera = nullptr;
 
 GLuint sunTexture;
+GLuint saturnRingTexture;
 PlanetConf planetConfs[8];
 
 double time = 0;
@@ -34,6 +37,8 @@ void drawSun();
 void drawPlanet(PlanetConf* planetConf);
 
 void drawPlanetSimple(GLuint texture, GLfloat size);
+
+void drawSaturn(GLuint texture, GLfloat size);
 
 GLuint loadTexture(const char *texturePath);
 
@@ -56,7 +61,8 @@ void init (void) {
             .semiMajorAxis = 2.2029, .eccentricity = 0.0484, .orbitalPeriod = 11.8626, .dayLength = 10};
 
     PlanetConf saturnConf = {.texture = loadTexture("assets/saturn.jpg"), .size = 60268,
-            .semiMajorAxis = 3.537, .eccentricity = 0.0539, .orbitalPeriod = 29.4474, .dayLength = 11};
+            .semiMajorAxis = 3.537, .eccentricity = 0.0539, .orbitalPeriod = 29.4474, .dayLength = 11,
+            .drawFunc = drawSaturn};
 
     PlanetConf uranusConf = {.texture = loadTexture("assets/uranus.jpg"), .size = 25559,
             .semiMajorAxis = 4.189, .eccentricity = 0.04726, .orbitalPeriod = 84.0168, .dayLength = 17};
@@ -72,6 +78,8 @@ void init (void) {
     planetConfs[5] = saturnConf;
     planetConfs[6] = uranusConf;
     planetConfs[7] = neptuneConf;
+
+    saturnRingTexture = loadTexture("assets/saturn_ring_alpha.png");
 }
 
 GLuint loadTexture(const char *texturepath) {
@@ -82,6 +90,7 @@ GLuint loadTexture(const char *texturepath) {
                     SOIL_CREATE_NEW_ID,
                     SOIL_FLAG_MIPMAPS | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
             );
+
 }
 
 void enable (void) {
@@ -105,7 +114,11 @@ void drawPlanet(PlanetConf* planetConf) {
     glRotatef(time /TIME_FACTOR/ planetConf -> dayLength, 0, 1, 0);
     glTranslatef(posx * SCALE_FACTOR, 0, posy * SCALE_FACTOR);
     glTranslatef(0, 0, planetConf -> eccentricity * SCALE_FACTOR);
-    drawPlanetSimple(planetConf -> texture, planetConf->size);
+    if (planetConf -> drawFunc != NULL) {
+        planetConf->drawFunc(planetConf->texture, planetConf->size);
+    } else {
+        drawPlanetSimple(planetConf->texture, planetConf->size);
+    }
     glPopMatrix();
 }
 
@@ -138,8 +151,24 @@ void drawPlanetSimple(GLuint texture, GLfloat size) {
     gluDeleteQuadric(sphereQuadratic);
 }
 
+void drawSaturn(GLuint texture, GLfloat size) {
+    drawPlanetSimple(texture, size);
+    GLUquadricObj *discQuadratic = gluNewQuadric();
+    glPushMatrix();
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, saturnRingTexture);
+    gluQuadricDrawStyle(discQuadratic, GLU_FILL);
+    gluQuadricTexture(discQuadratic, TRUE);
+    glRotatef(90, 1, 0, 0);
+    glScaled(1, 1, 0.01);
+    gluSphere(discQuadratic, size/1000 + 70, 50, 50);
+    glPopMatrix();
+    gluDeleteQuadric(discQuadratic);
+}
+
 void drawSun() {
-    GLfloat emissionParams[] = { 1, 1, 1, 1.0 };
+    GLfloat emissionParams[] = { 1, 0.5, 0.5, 1.0 };
     glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, emissionParams);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
